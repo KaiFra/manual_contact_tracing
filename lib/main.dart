@@ -128,6 +128,7 @@ class MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
+                /*
                 Container(
                   child: TextFormField(
                     textCapitalization: TextCapitalization.sentences,
@@ -142,15 +143,62 @@ class MyHomePageState extends State<MyHomePage> {
                     controller: textfield,
                   ),
                 ),
+
+                 */
               ],
             ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: createEntry,
+        onPressed: weird,
         tooltip: 'Add new contacts',
         child: Icon(Icons.add),
       ),
       //floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterDocked,// This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  void weird(){
+    _displayTextInputDialog(context);
+  }
+
+  Future<void> _displayTextInputDialog(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Enter your contacts'),
+            content: TextFormField(
+              textCapitalization: TextCapitalization.sentences,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                fillColor: Colors.white,
+                //border: const UnderlineInputBorder(),
+                labelText: 'Enter your contacts for today',
+              ),
+              autofocus: true,
+              maxLines: 1,
+              controller: textfield,
+            ),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.red,
+                textColor: Colors.white,
+                child: Text('Cancel'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+              FlatButton(
+                color: CustomColors.myGreen,
+                textColor: Colors.white,
+                child: Text('OK'),
+                onPressed: createEntry,
+              ),
+            ],
+          );
+        });
   }
 
   createEntry(){
@@ -175,6 +223,9 @@ class MyHomePageState extends State<MyHomePage> {
       }
       textfield.clear();
       saveData();
+      setState(() {
+        Navigator.pop(context);
+      });
     }
     /*
     setState(() {entries.add(new Entry(textfield.text, time));});
@@ -217,7 +268,6 @@ class MyHomePageState extends State<MyHomePage> {
       }
     }
     //Remove indeces with old date
-    //print(indeces);
     int removedCount = 0;
     for (int i = 0; i < indeces.length; i++) {
       setState(() {
@@ -325,7 +375,7 @@ class MyHomePageState extends State<MyHomePage> {
                                       new AlertDialog(
                                         title: new Text("Manual Contact Tracing"),
                                         content: new Text("This app helps you to manually track your contacts.\nYou can add contacts for every day, but can't delete them right now.\n"
-                                            "Copying to the clipboard is supported.\n\n2020 \u00a9 Franz Lukas Kaiser"),
+                                            "Copying to the clipboard is supported.\n\n2021 \u00a9 Franz Lukas Kaiser"),
                                       ));},
                                   ),
                                 ],

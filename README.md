@@ -24,3 +24,8 @@ Application to manually track social contacts on a daily basis
     -Added delete data
     -removed numEntries, now using entries.length
     -Added list sorting
+#1.4.1
+    -Updated copyright year to 2021
+#1.5.0
+    -Changed button layout
+    -Added pop up to enter contacts

@@ -7,13 +7,6 @@ class CustomTheme {
         scaffoldBackgroundColor: Colors.black,
         fontFamily: 'Montserrat',
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        //appBarTheme: AppBarTheme(
-        //  color: CustomColors.myGreen,
-        //),
-        //buttonTheme: ButtonThemeData(
-        //  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-        //  buttonColor: CustomColors.myGreen,
-        //),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           splashColor: CustomColors.myGreen,
           backgroundColor: CustomColors.myGreen,
@@ -27,7 +20,10 @@ class CustomTheme {
           backgroundColor: CustomColors.myGrey,
           titleTextStyle: TextStyle(color: Colors.white, fontSize: 24),
           contentTextStyle: TextStyle(color: Colors.white, fontSize: 16),
-        )
+        ),
+        buttonTheme: ButtonThemeData(
+        //textTheme: Colors.white,
+    ),
     );
   }
 }
