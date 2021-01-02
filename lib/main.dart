@@ -409,8 +409,8 @@ class MyHomePageState extends State<MyHomePage> {
                                       showDialog(context: context, child:
                                       new AlertDialog(
                                         title: new Text("Manual Contact Tracing"),
-                                        content: new Text("This app helps you to manually track your contacts.\nYou can add contacts for every day, but can't delete them right now.\n"
-                                            "Copying to the clipboard is supported.\n\n2021 \u00a9 Franz Lukas Kaiser"),
+                                        content: new Text("This app helps you to manually track your contacts.\nYou can add contacts for every day and edit them.\n"
+                                            "Copying to the clipboard is supported.\nContacts are automatically deleted after 16 days.\n\n2021 \u00a9 Franz Lukas Kaiser"),
                                       ));},
                                   ),
                                 ],
