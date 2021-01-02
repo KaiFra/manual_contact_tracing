@@ -21,9 +21,6 @@ class CustomTheme {
           titleTextStyle: TextStyle(color: Colors.white, fontSize: 24),
           contentTextStyle: TextStyle(color: Colors.white, fontSize: 16),
         ),
-        buttonTheme: ButtonThemeData(
-        //textTheme: Colors.white,
-    ),
     );
   }
 }
@@ -31,5 +28,6 @@ class CustomTheme {
 class CustomColors {
  //static const Color myGreen = Color.fromRGBO(92, 184, 92, 1);
   static const Color myGreen = Colors.green;
- static const Color myGrey = Color(0xFF222222);
+  static const Color myGrey = Color(0xFF222222);
+  static const Color myLightGrey = Color(0xFF424242);
 }

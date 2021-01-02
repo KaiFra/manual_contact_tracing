@@ -44,3 +44,5 @@ Application to manually track social contacts on a daily basis
     -Simplified removing old and empty days
 ### 1.6.3
 	-Updated info
+### 1.6.4
+    -Updated date picker to rounded date picker and fixed style

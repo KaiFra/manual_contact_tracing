@@ -5,6 +5,7 @@ import 'package:manual_contact_tracing/entry.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:manual_contact_tracing/theme.dart';
+import 'package:flutter_rounded_date_picker/rounded_picker.dart';
 
 
 void main() {
@@ -206,7 +207,6 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   createEntry(String time) {
-      //String today = DateFormat('dd.MM.yyy').format(new DateTime.now());
       bool added = false;
       for (int i = 0; i < entries.length; i++) {
         if (entries[i].time == time) {
@@ -221,6 +221,13 @@ class MyHomePageState extends State<MyHomePage> {
         setState(() {
           entries.add(new Entry(textfield.text.trim(), time));
         });
+      }
+      for (int i = 0; i < entries.length; i++) {
+        print(entries[i].time + "\n" + entries[i].enteredContacts);
+      } //TODO remove empty entries
+      if(entries[entries.length - 1].enteredContacts == ""){
+        print("removed: " + entries[entries.length - 1].time);
+        entries.removeLast();
       }
       textfield.clear();
       saveData();
@@ -254,7 +261,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void removeJunk(){
-    DateTime timeAgo = DateTime.now().subtract(Duration(days: 16));
+    DateTime timeAgo = DateTime.now().subtract(Duration(days: 17));
     //Find indeces with old date or empty
     List<int> indeces = [];
     for (int i = 0; i < entries.length; i++) {
@@ -262,12 +269,10 @@ class MyHomePageState extends State<MyHomePage> {
       if (entryTime.isBefore(timeAgo) || entries[i].enteredContacts == "" || entries[i].enteredContacts == "\n") {
         indeces.add(i);
       }
-      //entries[i].enteredContacts.replaceAll(new RegExp(r'(?:[\t ]*(?:\r?\n|\r))+'), ''); //TODO remove empty lines seems solved
       String trim = entries[i].enteredContacts.trim();
       entries[i].enteredContacts = trim;
-
     }
-    //Remove indeces with old date
+    //Remove corresponding indices
     int removedCount = 0;
     for (int i = 0; i < indeces.length; i++) {
       setState(() {
@@ -318,14 +323,25 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void searchDate() async{
-
     DateTime now = DateTime.now();
-    final DateTime pickedDate = await showDatePicker( //TODO Styling
+    final DateTime pickedDate = await showRoundedDatePicker( //TODO Styling buttons
       context: context,
       initialDate: now,
       firstDate: now.subtract(Duration(days: 16)),
       lastDate: now,
       initialDatePickerMode: DatePickerMode.day,
+      borderRadius: 16,
+      theme: ThemeData(
+        primaryColor: CustomColors.myGreen,
+        accentColor: CustomColors.myGreen,
+        dialogBackgroundColor: CustomColors.myLightGrey,
+        textTheme: TextTheme(
+          bodyText2: TextStyle(color: Colors.white),
+          caption: TextStyle(color: Colors.black),
+
+        ),
+        disabledColor: CustomColors.myLightGrey,
+      ),
     );
 
     String picked = DateFormat('dd.MM.yyy').format(pickedDate);
@@ -341,7 +357,6 @@ class MyHomePageState extends State<MyHomePage> {
       setState(() {entries.add(new Entry("", picked));});
       showInputDialog(entries.length - 1, picked);
     }
-    //
   }
 
   showMenu() {
@@ -383,6 +398,7 @@ class MyHomePageState extends State<MyHomePage> {
                                       Icons.search,
                                       color: Colors.white,
                                     ),
+
                                     onTap: searchDate,
                                   ),
                                   ListTile(
