@@ -54,3 +54,13 @@ Application to manually track social contacts on a daily basis
     -Changed button layout
     
     -Added pop up to enter contacts
+    
+### 1.5.1
+    
+    -Simplifications
+    
+    -Removed textinput label
+    
+    -Deleting data now works properly
+    
+    -Changed design of delete data dialog

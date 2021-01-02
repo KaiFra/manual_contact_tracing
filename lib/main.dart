@@ -39,7 +39,7 @@ class MyHomePageState extends State<MyHomePage> {
 
   SharedPreferences sharedPreferences;
 
-  List<Entry> entries = new List<Entry>();
+  List<Entry> entries = new List<Entry>(); //List for all contacts
 
   final formatter = DateFormat('dd.MM.yyy');
 
@@ -90,7 +90,6 @@ class MyHomePageState extends State<MyHomePage> {
         child: new Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              //IconButton(icon: Icon(Icons.menu), onPressed: () => _scaffoldKey.currentState.openDrawer(), color: Colors.white,),
               IconButton(icon: Icon(Icons.menu), onPressed: showMenu, color: Colors.white,),
               IconButton(icon: Icon(Icons.copy), onPressed: copy, color: Colors.white,),
         ],
@@ -100,9 +99,7 @@ class MyHomePageState extends State<MyHomePage> {
             Column(
               children: [
                 Expanded(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxHeight: 500),
-                    child: ListView.builder(
+                  child: ListView.builder(
                       // Let the ListView know how many items it needs to build.
                       itemCount: entries.length,
                       // Provide a builder function. This is where the magic happens.
@@ -126,30 +123,12 @@ class MyHomePageState extends State<MyHomePage> {
                         );
                       },
                     ),
-                  ),
                 ),
-                /*
-                Container(
-                  child: TextFormField(
-                    textCapitalization: TextCapitalization.sentences,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      fillColor: Colors.white,
-                      //border: const UnderlineInputBorder(),
-                      labelText: 'Enter your contacts for today',
-                    ),
-                    autofocus: false,
-                    maxLines: 3,
-                    controller: textfield,
-                  ),
-                ),
-
-                 */
               ],
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: weird,
+        onPressed: showInputDialog,
         tooltip: 'Add new contacts',
         child: Icon(Icons.add),
       ),
@@ -157,10 +136,12 @@ class MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void weird(){
+  //Workaround to show text input field to add contact
+  void showInputDialog(){
     _displayTextInputDialog(context);
   }
 
+  //Display alert dialog to enter contacts
   Future<void> _displayTextInputDialog(BuildContext context) async {
     return showDialog(
         context: context,
@@ -172,15 +153,13 @@ class MyHomePageState extends State<MyHomePage> {
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 fillColor: Colors.white,
-                //border: const UnderlineInputBorder(),
-                labelText: 'Enter your contacts for today',
               ),
               autofocus: true,
               maxLines: 1,
               controller: textfield,
             ),
             actions: <Widget>[
-              FlatButton(
+                FlatButton(
                 color: Colors.red,
                 textColor: Colors.white,
                 child: Text('Cancel'),
@@ -190,7 +169,7 @@ class MyHomePageState extends State<MyHomePage> {
                   });
                 },
               ),
-              FlatButton(
+                FlatButton(
                 color: CustomColors.myGreen,
                 textColor: Colors.white,
                 child: Text('OK'),
@@ -212,24 +191,15 @@ class MyHomePageState extends State<MyHomePage> {
           });
           added = true;
           break;
-          //print("Updated entry");
         }
       }
       if (!added) {
-        setState(() {
-          entries.add(new Entry(textfield.text, timeNow));
-        });
-        //print("Added new entry");
+        setState(() {entries.add(new Entry(textfield.text, timeNow));});
       }
       textfield.clear();
       saveData();
-      setState(() {
-        Navigator.pop(context);
-      });
+      setState(() {Navigator.pop(context);});
     }
-    /*
-    setState(() {entries.add(new Entry(textfield.text, time));});
-    */
   }
 
   void copy(){
@@ -245,7 +215,6 @@ class MyHomePageState extends State<MyHomePage> {
     sortList();
     List<String> spList = entries.map((item) => json.encode(item.toMap())).toList();
     sharedPreferences.setStringList('list', spList);
-    setState(() {});
   }
 
   void loadData() {
@@ -284,16 +253,25 @@ class MyHomePageState extends State<MyHomePage> {
       title: new Text("Delete data?"),
       content: new Text("Proceeding with this action will delete your data."),
       actions: [
-        TextButton(onPressed: deleteData, child: Text('Delete data',)),
-        TextButton(onPressed: () => Navigator.pop(context), child: Text('Dismiss')),
+        FlatButton(
+          color: Colors.red,
+          textColor: Colors.white,
+          child: Text('Cancel'),
+            onPressed: () => Navigator.pop(context),
+        ),
+        FlatButton(
+          color: CustomColors.myGreen,
+          textColor: Colors.white,
+          child: Text('Delete data'),
+          onPressed: deleteData,
+        ),
       ],
     ));
   }
 
   void deleteData(){
-    setState(() {
-      entries.clear();
-    });
+    setState(() {entries.clear();});
+    saveData();
     Navigator.pop(context);
   }
   @override
@@ -304,9 +282,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void sortList(){
-    setState(() {
-      entries.sort((a,b) => formatter.parse(b.time).compareTo(formatter.parse(a.time)));
-    });
+    setState(() {entries.sort((a,b) => formatter.parse(b.time).compareTo(formatter.parse(a.time)));});
   }
 
   showMenu() {
@@ -341,7 +317,7 @@ class MyHomePageState extends State<MyHomePage> {
                                 children: <Widget>[
                                   ListTile(
                                     title: Text(
-                                      "Sort",
+                                      "Search - does nothing atm",
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     leading: Icon(
@@ -388,5 +364,4 @@ class MyHomePageState extends State<MyHomePage> {
           );
         });
   }
-
 }
