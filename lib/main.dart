@@ -18,6 +18,17 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitUp,
     ]);
     return MaterialApp(
+      /*
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('de', 'DE'),
+      ],
+      locale: Locale('de'),
+
+       */
       debugShowCheckedModeBanner: false,
       title: 'Manual contact tracing',
       theme: CustomTheme.darkTheme,
@@ -128,7 +139,7 @@ class MyHomePageState extends State<MyHomePage> {
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: showInputDialog,
+        onPressed: () => showInputDialog(0, DateFormat('dd.MM.yyy').format(new DateTime.now())),
         tooltip: 'Add new contacts',
         child: Icon(Icons.add),
       ),
@@ -137,26 +148,26 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   //Workaround to show text input field to add contact
-  void showInputDialog(){
-    _displayTextInputDialog(context);
+  void showInputDialog(int index,String time){
+    displayTextInputDialog(context,index, time);
   }
 
   //Display alert dialog to enter contacts
-  Future<void> _displayTextInputDialog(BuildContext context) async {
+  Future<void> displayTextInputDialog(BuildContext context, int index, String time) async {
     return showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             title: Text('Enter your contacts'),
-            content: TextFormField(
+            content:TextFormField(
               textCapitalization: TextCapitalization.sentences,
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 fillColor: Colors.white,
               ),
               autofocus: true,
-              maxLines: 1,
-              controller: textfield,
+              maxLines: 3,
+              controller: textfield..text = getInitialTextFieldValue(index, time),
             ),
             actions: <Widget>[
                 FlatButton(
@@ -173,33 +184,49 @@ class MyHomePageState extends State<MyHomePage> {
                 color: CustomColors.myGreen,
                 textColor: Colors.white,
                 child: Text('OK'),
-                onPressed: createEntry,
+                onPressed: () => createEntry(time),
               ),
             ],
           );
         });
   }
 
-  createEntry(){
-    if(textfield.text != '') {
-      String timeNow = DateFormat('dd.MM.yyy').format(new DateTime.now()) ;
+  String getInitialTextFieldValue(int i, String time){
+    if(entries.length == 0) {
+      return '';
+    }
+
+    if (entries[i].time == time) {
+        String ret = entries[i].enteredContacts + "\n";
+        return ret;
+      }
+    else {
+        return '';
+      }
+  }
+
+  createEntry(String time) {
+      //String today = DateFormat('dd.MM.yyy').format(new DateTime.now());
       bool added = false;
       for (int i = 0; i < entries.length; i++) {
-        if (entries[i].time == timeNow) {
+        if (entries[i].time == time) {
           setState(() {
-            entries[i].enteredContacts += "\n" + textfield.text;
+            entries[i].enteredContacts = textfield.text.trim();
           });
           added = true;
           break;
         }
       }
-      if (!added) {
-        setState(() {entries.add(new Entry(textfield.text, timeNow));});
+      if (!added && textfield.text != '') {
+        setState(() {
+          entries.add(new Entry(textfield.text.trim(), time));
+        });
       }
       textfield.clear();
       saveData();
-      setState(() {Navigator.pop(context);});
-    }
+      setState(() {
+        Navigator.pop(context);
+      });
   }
 
   void copy(){
@@ -211,7 +238,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void saveData(){
-    removeOld();
+    removeJunk();
     sortList();
     List<String> spList = entries.map((item) => json.encode(item.toMap())).toList();
     sharedPreferences.setStringList('list', spList);
@@ -223,18 +250,22 @@ class MyHomePageState extends State<MyHomePage> {
       entries = spList.map((item) => Entry.fromMap(json.decode(item))).toList();
       setState(() {});
     }
-    removeOld();
+    removeJunk();
   }
 
-  void removeOld(){
+  void removeJunk(){
     DateTime timeAgo = DateTime.now().subtract(Duration(days: 16));
-    //Find indeces with old date
+    //Find indeces with old date or empty
     List<int> indeces = [];
     for (int i = 0; i < entries.length; i++) {
       DateTime entryTime = formatter.parse(entries[i].time);
-      if (entryTime.isBefore(timeAgo)) {
+      if (entryTime.isBefore(timeAgo) || entries[i].enteredContacts == "" || entries[i].enteredContacts == "\n") {
         indeces.add(i);
       }
+      //entries[i].enteredContacts.replaceAll(new RegExp(r'(?:[\t ]*(?:\r?\n|\r))+'), ''); //TODO remove empty lines seems solved
+      String trim = entries[i].enteredContacts.trim();
+      entries[i].enteredContacts = trim;
+
     }
     //Remove indeces with old date
     int removedCount = 0;
@@ -274,6 +305,7 @@ class MyHomePageState extends State<MyHomePage> {
     saveData();
     Navigator.pop(context);
   }
+
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -283,6 +315,33 @@ class MyHomePageState extends State<MyHomePage> {
 
   void sortList(){
     setState(() {entries.sort((a,b) => formatter.parse(b.time).compareTo(formatter.parse(a.time)));});
+  }
+
+  void searchDate() async{
+
+    DateTime now = DateTime.now();
+    final DateTime pickedDate = await showDatePicker( //TODO Styling
+      context: context,
+      initialDate: now,
+      firstDate: now.subtract(Duration(days: 16)),
+      lastDate: now,
+      initialDatePickerMode: DatePickerMode.day,
+    );
+
+    String picked = DateFormat('dd.MM.yyy').format(pickedDate);
+    bool found = false;
+    for (int i = 0; i < entries.length; i++) {
+      if (entries[i].time == picked) {
+        showInputDialog(i, picked);
+        found = true;
+        break;
+      }
+    }
+    if(!found){
+      setState(() {entries.add(new Entry("", picked));});
+      showInputDialog(entries.length - 1, picked);
+    }
+    //
   }
 
   showMenu() {
@@ -317,14 +376,14 @@ class MyHomePageState extends State<MyHomePage> {
                                 children: <Widget>[
                                   ListTile(
                                     title: Text(
-                                      "Search - does nothing atm",
+                                      "Search and edit",
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     leading: Icon(
                                       Icons.search,
                                       color: Colors.white,
                                     ),
-                                    onTap: sortList,
+                                    onTap: searchDate,
                                   ),
                                   ListTile(
                                     title: Text(

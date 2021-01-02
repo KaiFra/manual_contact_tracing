@@ -64,3 +64,19 @@ Application to manually track social contacts on a daily basis
     -Deleting data now works properly
     
     -Changed design of delete data dialog
+    
+## 1.6.0
+
+    -Added option to add contacts for older dates
+    
+### 1.6.1
+    
+    -Removed option to add older days (for now)
+    
+    -Current date can be edited
+    
+### 1.6.2
+    
+    -Editing old days and adding old days works now
+    
+    -Simplified removing old and empty days
