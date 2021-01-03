@@ -222,13 +222,6 @@ class MyHomePageState extends State<MyHomePage> {
           entries.add(new Entry(textfield.text.trim(), time));
         });
       }
-      for (int i = 0; i < entries.length; i++) {
-        print(entries[i].time + "\n" + entries[i].enteredContacts);
-      } //TODO remove empty entries
-      if(entries[entries.length - 1].enteredContacts == ""){
-        print("removed: " + entries[entries.length - 1].time);
-        entries.removeLast();
-      }
       textfield.clear();
       saveData();
       setState(() {
@@ -241,6 +234,7 @@ class MyHomePageState extends State<MyHomePage> {
     for(var i = 0; i < entries.length; i++){
       clipboard += entries[i].time + "\n" + entries[i].enteredContacts + "\n";
     }
+    //print(clipboard);
     Clipboard.setData(new ClipboardData(text: clipboard));
   }
 
@@ -260,6 +254,7 @@ class MyHomePageState extends State<MyHomePage> {
     removeJunk();
   }
 
+  //Removes old and empty dates
   void removeJunk(){
     DateTime timeAgo = DateTime.now().subtract(Duration(days: 17));
     //Find indeces with old date or empty
@@ -282,6 +277,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  //Dialog for deleting data
   void deleteDataDialog(){
     showDialog(context: context, child:
     new AlertDialog(
@@ -311,9 +307,9 @@ class MyHomePageState extends State<MyHomePage> {
     Navigator.pop(context);
   }
 
+  // Clean up the controller when the widget is disposed.
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed.
     textfield.dispose();
     super.dispose();
   }
@@ -327,7 +323,7 @@ class MyHomePageState extends State<MyHomePage> {
     final DateTime pickedDate = await showRoundedDatePicker( //TODO Styling buttons
       context: context,
       initialDate: now,
-      firstDate: now.subtract(Duration(days: 16)),
+      firstDate: now.subtract(Duration(days: 17)),
       lastDate: now,
       initialDatePickerMode: DatePickerMode.day,
       borderRadius: 16,
@@ -354,7 +350,7 @@ class MyHomePageState extends State<MyHomePage> {
       }
     }
     if(!found){
-      setState(() {entries.add(new Entry("", picked));});
+      //setState(() {entries.add(new Entry("", picked));});
       showInputDialog(entries.length - 1, picked);
     }
   }
