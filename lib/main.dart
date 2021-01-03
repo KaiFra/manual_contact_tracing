@@ -128,6 +128,7 @@ class MyHomePageState extends State<MyHomePage> {
                               //leading: Icon(Icons.album),
                               title: Text(entries[index].time, style: TextStyle(color: Colors.white, fontSize: 22)),
                               subtitle: Text(entries[index].enteredContacts, style: TextStyle(color: Colors.white, fontSize: 16)),
+                              onTap: () => showInputDialog(index, entries[index].time),
                             ),
                             ],
                             ),

@@ -48,3 +48,5 @@ Application to manually track social contacts on a daily basis
     -Updated date picker to rounded date picker and fixed style
 ### 1.6.5
     -Fixed issue with adding older days without contact
+### 1.7.0
+    -Added onTap for listview, makes dates clickable
