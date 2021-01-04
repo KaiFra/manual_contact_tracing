@@ -19,17 +19,6 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitUp,
     ]);
     return MaterialApp(
-      /*
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      supportedLocales: [
-        Locale('de', 'DE'),
-      ],
-      locale: Locale('de'),
-
-       */
       debugShowCheckedModeBanner: false,
       title: 'Manual contact tracing',
       theme: CustomTheme.darkTheme,
@@ -335,7 +324,6 @@ class MyHomePageState extends State<MyHomePage> {
         textTheme: TextTheme(
           bodyText2: TextStyle(color: Colors.white),
           caption: TextStyle(color: Colors.black),
-
         ),
         disabledColor: CustomColors.myLightGrey,
       ),
@@ -381,7 +369,6 @@ class MyHomePageState extends State<MyHomePage> {
                           alignment: Alignment(0, 0),
                           overflow: Overflow.visible,
                           children: <Widget>[
-
                             Positioned(
                               child: ListView(
                                 physics: NeverScrollableScrollPhysics(),
@@ -395,7 +382,6 @@ class MyHomePageState extends State<MyHomePage> {
                                       Icons.search,
                                       color: Colors.white,
                                     ),
-
                                     onTap: searchDate,
                                   ),
                                   ListTile(
