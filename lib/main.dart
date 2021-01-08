@@ -6,7 +6,8 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:manual_contact_tracing/theme.dart';
 import 'package:flutter_rounded_date_picker/rounded_picker.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import 'notification.dart';
 
 
 void main() {
@@ -45,10 +46,13 @@ class MyHomePageState extends State<MyHomePage> {
 
   final formatter = DateFormat('dd.MM.yyy');
 
+  final Notifications _notifications = Notifications();
+
   @override
   void initState() {
     initSharedPreferences();
     super.initState();
+    this._notifications.initNotifications();
   }
 
   initSharedPreferences() async{
@@ -227,6 +231,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
     //print(clipboard);
     Clipboard.setData(new ClipboardData(text: clipboard));
+    this._notifications.pushNotification();
   }
 
   void saveData(){
