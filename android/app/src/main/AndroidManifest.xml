@@ -3,6 +3,7 @@
     package="com.example.manual_contact_tracing">
 
     <application
+        android:name="io.flutter.app.FlutterApplication"
         android:label="Manual Contact Tracing"
         android:icon="@mipmap/ic_launcher">
         <activity

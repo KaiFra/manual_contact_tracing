@@ -7,6 +7,7 @@ class CustomTheme {
         scaffoldBackgroundColor: Colors.black,
         fontFamily: 'Montserrat',
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        accentColor: CustomColors.myGreen,
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           splashColor: CustomColors.myGreen,
           backgroundColor: CustomColors.myGreen,

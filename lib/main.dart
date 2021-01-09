@@ -6,6 +6,9 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:manual_contact_tracing/theme.dart';
 import 'package:flutter_rounded_date_picker/rounded_picker.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 import 'notification.dart';
 
@@ -48,11 +51,15 @@ class MyHomePageState extends State<MyHomePage> {
 
   final Notifications _notifications = Notifications();
 
+
+
   @override
   void initState() {
     initSharedPreferences();
     super.initState();
     this._notifications.initNotifications();
+    tz.initializeTimeZones();
+    
   }
 
   initSharedPreferences() async{
@@ -231,7 +238,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
     //print(clipboard);
     Clipboard.setData(new ClipboardData(text: clipboard));
-    this._notifications.pushNotification();
+    //this._notifications.pushNotification();
   }
 
   void saveData(){
@@ -362,7 +369,7 @@ class MyHomePageState extends State<MyHomePage> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 SizedBox(
-                    height: (56 * 3).toDouble(),
+                    height: (56 * 4).toDouble(),
                     child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.only(
@@ -379,6 +386,18 @@ class MyHomePageState extends State<MyHomePage> {
                               child: ListView(
                                 physics: NeverScrollableScrollPhysics(),
                                 children: <Widget>[
+                                  ListTile(
+                                    title: Text(
+                                      "Add daily notification",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    leading: Icon(
+                                      Icons.notifications,
+                                      color: Colors.white,
+                                    ),
+                                    onTap: () => dailyNotification(),
+                                    //onTap: () async {await this._notifications.scheduleDailyNotification();},
+                                  ),
                                   ListTile(
                                     title: Text(
                                       "Search and edit",
@@ -428,4 +447,13 @@ class MyHomePageState extends State<MyHomePage> {
           );
         });
   }
+  void dailyNotification() async{
+    Future<TimeOfDay> pickedTime = showTimePicker(
+      initialTime: TimeOfDay.now(),
+      context: context,
+    );
+  }
+
+  //_notifications.scheduleDailyNotification(pickedTime);
+
 }
