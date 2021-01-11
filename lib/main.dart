@@ -51,21 +51,24 @@ class MyHomePageState extends State<MyHomePage> {
 
   final Notifications _notifications = Notifications();
 
-
+  List<int> pickedTimeSP = [0, 0]; //Workaround to save notification time in sharedPrefs
 
   @override
   void initState() {
     initSharedPreferences();
+    TimeOfDay pickedTime = TimeOfDay(hour: pickedTimeSP[0], minute: pickedTimeSP[1]);
+
     super.initState();
     this._notifications.initNotifications();
     tz.initializeTimeZones();
-    
+
+    this._notifications.scheduleDailyNotification(pickedTime);
   }
 
   initSharedPreferences() async{
     sharedPreferences = await SharedPreferences.getInstance();
     loadData();
-    sortList();
+
     /*
     //For testing purposes
     setState(() {
@@ -238,7 +241,6 @@ class MyHomePageState extends State<MyHomePage> {
     }
     //print(clipboard);
     Clipboard.setData(new ClipboardData(text: clipboard));
-    //this._notifications.pushNotification();
   }
 
   void saveData(){
@@ -248,6 +250,11 @@ class MyHomePageState extends State<MyHomePage> {
     sharedPreferences.setStringList('list', spList);
   }
 
+  void saveNotifTime(){
+    sharedPreferences.setInt('pickedHour', pickedTimeSP[0]);
+    sharedPreferences.setInt('pickedMin', pickedTimeSP[1]);
+  }
+
   void loadData() {
     List<String> spList = sharedPreferences.getStringList('list');
     if (spList != null) {
@@ -255,6 +262,10 @@ class MyHomePageState extends State<MyHomePage> {
       setState(() {});
     }
     removeJunk();
+    sortList();
+
+    pickedTimeSP[0] = sharedPreferences.getInt('pickedHour');
+    pickedTimeSP[1] = sharedPreferences.getInt('pickedMin');
   }
 
   //Removes old and empty dates
@@ -388,7 +399,7 @@ class MyHomePageState extends State<MyHomePage> {
                                 children: <Widget>[
                                   ListTile(
                                     title: Text(
-                                      "Add daily notification",
+                                      "Add daily notification\nCurrently scheduled at ${pickedTimeSP[0]}:${pickedTimeSP[1]}",//TODO Add leading 0, does not load asap
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     leading: Icon(
@@ -447,13 +458,18 @@ class MyHomePageState extends State<MyHomePage> {
           );
         });
   }
-  void dailyNotification() async{
-    Future<TimeOfDay> pickedTime = showTimePicker(
+
+  void dailyNotification() async {
+    TimeOfDay pickedTime = await showTimePicker(
       initialTime: TimeOfDay.now(),
       context: context,
     );
+    setState(() {
+      pickedTimeSP[0] = pickedTime.hour;
+      pickedTimeSP[1] = pickedTime.minute;
+    });
+    await this._notifications.flutterLocalNotificationsPlugin.cancelAll();
+    this._notifications.scheduleDailyNotification(pickedTime);
+    saveNotifTime();
   }
-
-  //_notifications.scheduleDailyNotification(pickedTime);
-
 }

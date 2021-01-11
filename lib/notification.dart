@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-//import 'package:intl/intl.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -34,9 +33,9 @@ class Notifications {
   }
 
 
-  tz.TZDateTime nextInstance(TimeOfDay pickedTime) {//TODO Do I really need tz?
+  tz.TZDateTime nextInstance(TimeOfDay pickedTime) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, pickedTime.hour - 1, pickedTime.minute);
     print(scheduledDate);
     while (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(hours: 1));
@@ -56,7 +55,7 @@ class Notifications {
             'daily notification channel name',
             'daily notification description',
             importance: Importance.defaultImportance,
-            priority: Priority.low,
+            priority: Priority.defaultPriority,
             enableVibration: false,
           ),
         ),
@@ -64,4 +63,3 @@ class Notifications {
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime, matchDateTimeComponents: DateTimeComponents.time);
   }
 }
-
