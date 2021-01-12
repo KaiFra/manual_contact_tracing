@@ -10,7 +10,7 @@ class Notifications {
 
   void initNotifications() async {
     final AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('ic_launcher'); //TODO Icon
+    AndroidInitializationSettings('icon.png'); //TODO Icon
     final InitializationSettings initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid);
     await flutterLocalNotificationsPlugin.initialize(initializationSettings,
@@ -25,6 +25,7 @@ class Notifications {
       priority: Priority.low,
       showWhen: false,
       enableVibration: false,
+
     );
     const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(

@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:manual_contact_tracing/theme.dart';
 import 'package:flutter_rounded_date_picker/rounded_picker.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -55,14 +54,14 @@ class MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    this._notifications.initNotifications();
+    tz.initializeTimeZones();
     initSharedPreferences();
-    TimeOfDay pickedTime = TimeOfDay(hour: pickedTimeSP[0], minute: pickedTimeSP[1]);
-
     super.initState();
     this._notifications.initNotifications();
     tz.initializeTimeZones();
 
-    this._notifications.scheduleDailyNotification(pickedTime);
+
   }
 
   initSharedPreferences() async{
@@ -255,7 +254,7 @@ class MyHomePageState extends State<MyHomePage> {
     sharedPreferences.setInt('pickedMin', pickedTimeSP[1]);
   }
 
-  void loadData() {
+  void loadData() async {
     List<String> spList = sharedPreferences.getStringList('list');
     if (spList != null) {
       entries = spList.map((item) => Entry.fromMap(json.decode(item))).toList();
@@ -266,6 +265,11 @@ class MyHomePageState extends State<MyHomePage> {
 
     pickedTimeSP[0] = sharedPreferences.getInt('pickedHour');
     pickedTimeSP[1] = sharedPreferences.getInt('pickedMin');
+    //TODO what happens if no time set
+    TimeOfDay pickedTime = TimeOfDay(hour: pickedTimeSP[0], minute: pickedTimeSP[1]);
+
+    await this._notifications.flutterLocalNotificationsPlugin.cancelAll();
+    this._notifications.scheduleDailyNotification(pickedTime);
   }
 
   //Removes old and empty dates

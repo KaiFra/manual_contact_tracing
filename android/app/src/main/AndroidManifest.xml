@@ -6,6 +6,9 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="Manual Contact Tracing"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/icon" />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -24,7 +27,7 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
-            <meta-data
+            meta-data
               android:name="io.flutter.embedding.android.SplashScreenDrawable"
               android:resource="@drawable/launch_background"
               />
