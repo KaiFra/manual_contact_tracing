@@ -10,7 +10,7 @@ class Notifications {
 
   void initNotifications() async {
     final AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('icon.png'); //TODO Icon
+    AndroidInitializationSettings('@drawable/icon.png'); //TODO Icon
     final InitializationSettings initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid);
     await flutterLocalNotificationsPlugin.initialize(initializationSettings,
@@ -37,7 +37,6 @@ class Notifications {
   tz.TZDateTime nextInstance(TimeOfDay pickedTime) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, pickedTime.hour - 1, pickedTime.minute);
-    print(scheduledDate);
     while (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(hours: 1));
     }

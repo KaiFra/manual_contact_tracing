@@ -8,6 +8,7 @@ import 'package:manual_contact_tracing/theme.dart';
 import 'package:flutter_rounded_date_picker/rounded_picker.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'notification.dart';
 
@@ -51,6 +52,8 @@ class MyHomePageState extends State<MyHomePage> {
   final Notifications _notifications = Notifications();
 
   List<int> pickedTimeSP = [0, 0]; //Workaround to save notification time in sharedPrefs
+  String timeString = "";
+
 
   @override
   void initState() {
@@ -60,8 +63,6 @@ class MyHomePageState extends State<MyHomePage> {
     super.initState();
     this._notifications.initNotifications();
     tz.initializeTimeZones();
-
-
   }
 
   initSharedPreferences() async{
@@ -176,9 +177,9 @@ class MyHomePageState extends State<MyHomePage> {
             ),
             actions: <Widget>[
                 FlatButton(
-                color: Colors.red,
+                //color: Colors.red,
                 textColor: Colors.white,
-                child: Text('Cancel'),
+                child: Text('CANCEL'),
                 onPressed: () {
                   setState(() {
                     Navigator.pop(context);
@@ -186,7 +187,7 @@ class MyHomePageState extends State<MyHomePage> {
                 },
               ),
                 FlatButton(
-                color: CustomColors.myGreen,
+                //color: CustomColors.myGreen,
                 textColor: Colors.white,
                 child: Text('OK'),
                 onPressed: () => createEntry(time),
@@ -240,6 +241,15 @@ class MyHomePageState extends State<MyHomePage> {
     }
     //print(clipboard);
     Clipboard.setData(new ClipboardData(text: clipboard));
+    Fluttertoast.showToast(
+        msg: "Copied to clipboard",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 3,
+        backgroundColor: CustomColors.myLightGrey,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
   }
 
   void saveData(){
@@ -264,12 +274,19 @@ class MyHomePageState extends State<MyHomePage> {
     sortList();
 
     pickedTimeSP[0] = sharedPreferences.getInt('pickedHour');
+    if (pickedTimeSP[0] == null){
+      pickedTimeSP[0] = 12;
+    }
     pickedTimeSP[1] = sharedPreferences.getInt('pickedMin');
-    //TODO what happens if no time set
+    if (pickedTimeSP[1] == null){
+      pickedTimeSP[1] = 0;
+    }
+
     TimeOfDay pickedTime = TimeOfDay(hour: pickedTimeSP[0], minute: pickedTimeSP[1]);
 
     await this._notifications.flutterLocalNotificationsPlugin.cancelAll();
     this._notifications.scheduleDailyNotification(pickedTime);
+    timeToString();
   }
 
   //Removes old and empty dates
@@ -304,15 +321,13 @@ class MyHomePageState extends State<MyHomePage> {
       content: new Text("Proceeding with this action will delete your data."),
       actions: [
         FlatButton(
-          color: Colors.red,
           textColor: Colors.white,
-          child: Text('Cancel'),
+          child: Text('CANCEL'),
             onPressed: () => Navigator.pop(context),
         ),
         FlatButton(
-          color: CustomColors.myGreen,
           textColor: Colors.white,
-          child: Text('Delete data'),
+          child: Text('OK'),
           onPressed: deleteData,
         ),
       ],
@@ -338,7 +353,7 @@ class MyHomePageState extends State<MyHomePage> {
 
   void searchDate() async{
     DateTime now = DateTime.now();
-    final DateTime pickedDate = await showRoundedDatePicker( //TODO Styling buttons
+    final DateTime pickedDate = await showRoundedDatePicker(
       context: context,
       initialDate: now,
       firstDate: now.subtract(Duration(days: 17)),
@@ -352,6 +367,11 @@ class MyHomePageState extends State<MyHomePage> {
         textTheme: TextTheme(
           bodyText2: TextStyle(color: Colors.white),
           caption: TextStyle(color: Colors.black),
+        ),
+        buttonTheme: ButtonThemeData(
+          colorScheme: ColorScheme.dark(
+            primary: Colors.white,
+          ),
         ),
         disabledColor: CustomColors.myLightGrey,
       ),
@@ -403,7 +423,7 @@ class MyHomePageState extends State<MyHomePage> {
                                 children: <Widget>[
                                   ListTile(
                                     title: Text(
-                                      "Add daily notification\nCurrently scheduled at ${pickedTimeSP[0]}:${pickedTimeSP[1]}",//TODO Add leading 0, does not load asap
+                                      "Add daily notification\nCurrently scheduled at $timeString",
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     leading: Icon(
@@ -411,7 +431,6 @@ class MyHomePageState extends State<MyHomePage> {
                                       color: Colors.white,
                                     ),
                                     onTap: () => dailyNotification(),
-                                    //onTap: () async {await this._notifications.scheduleDailyNotification();},
                                   ),
                                   ListTile(
                                     title: Text(
@@ -467,13 +486,59 @@ class MyHomePageState extends State<MyHomePage> {
     TimeOfDay pickedTime = await showTimePicker(
       initialTime: TimeOfDay.now(),
       context: context,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.dark(
+              primary: Colors.white,
+            ),
+            buttonTheme: ButtonThemeData(
+              colorScheme: ColorScheme.dark(
+                primary: Colors.white,
+              ),
+            ),
+          ),
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+            child: child,
+          ),
+        );
+      },
     );
-    setState(() {
-      pickedTimeSP[0] = pickedTime.hour;
-      pickedTimeSP[1] = pickedTime.minute;
-    });
+    pickedTimeSP[0] = pickedTime.hour;
+    pickedTimeSP[1] = pickedTime.minute;
     await this._notifications.flutterLocalNotificationsPlugin.cancelAll();
     this._notifications.scheduleDailyNotification(pickedTime);
     saveNotifTime();
+    timeToString();
+
+    Navigator.pop(context);
+    Fluttertoast.showToast(
+        msg: "Notification set for $timeString",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 3,
+        backgroundColor: CustomColors.myLightGrey,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
   }
+
+  void timeToString(){
+    timeString = "";
+    if(pickedTimeSP[0] < 9){
+      timeString = "0" + pickedTimeSP[0].toString() + ":";
+    }
+    else{
+      timeString = pickedTimeSP[0].toString() + ":";
+    }
+
+    if(pickedTimeSP[1] < 9){
+      timeString += "0" + pickedTimeSP[1].toString();
+    }
+    else{
+      timeString += pickedTimeSP[1].toString();
+    }
+  }
+
 }
