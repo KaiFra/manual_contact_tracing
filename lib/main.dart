@@ -484,7 +484,7 @@ class MyHomePageState extends State<MyHomePage> {
 
   void dailyNotification() async {
     TimeOfDay pickedTime = await showTimePicker(
-      initialTime: TimeOfDay.now(),
+      initialTime: TimeOfDay.fromDateTime(DateTime.now().add(Duration(minutes: 1))),
       context: context,
       builder: (context, child) {
         return Theme(

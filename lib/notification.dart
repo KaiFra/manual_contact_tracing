@@ -10,11 +10,9 @@ class Notifications {
 
   void initNotifications() async {
     final AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@drawable/icon.png'); //TODO Icon
-    final InitializationSettings initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid);
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: null);
+    AndroidInitializationSettings('@drawable/notif_icon'); //TODO Icon
+    final InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings, onSelectNotification: null);
   }
 
   Future<void> pushNotification() async {
@@ -27,12 +25,12 @@ class Notifications {
       enableVibration: false,
 
     );
+
     const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
         0, 'Add contacts', 'Did you add all your contacts for today already?', platformChannelSpecifics,
         payload: 'item x');
   }
-
 
   tz.TZDateTime nextInstance(TimeOfDay pickedTime) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
