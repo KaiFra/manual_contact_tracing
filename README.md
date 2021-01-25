@@ -57,3 +57,7 @@ Application to manually track social contacts on a daily basis
     -Added timepicker
     -Added backend for daily notifications
     -Not connected yet
+### 2.0.0
+    -Added daily notification
+    -Added toast messages
+    -Unified button design
