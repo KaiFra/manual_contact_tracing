@@ -50,14 +50,9 @@ Application to manually track social contacts on a daily basis
     -Fixed issue with adding older days without contact
 ### 1.7.0
     -Added onTap for listview, makes dates clickable
-### Beta 1.8.0
-    -Added local notifications, needs schedule
-    -Change accent.Color to green
-### Beta 1.8.1
-    -Added timepicker
-    -Added backend for daily notifications
-    -Not connected yet
 ### 2.0.0
     -Added daily notification
     -Added toast messages
     -Unified button design
+### 2.0.1
+    -Added option to delete daily notification

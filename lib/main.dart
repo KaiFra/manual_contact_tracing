@@ -275,7 +275,7 @@ class MyHomePageState extends State<MyHomePage> {
 
     pickedTimeSP[0] = sharedPreferences.getInt('pickedHour');
     if (pickedTimeSP[0] == null){
-      pickedTimeSP[0] = 12;
+      pickedTimeSP[0] = 22;
     }
     pickedTimeSP[1] = sharedPreferences.getInt('pickedMin');
     if (pickedTimeSP[1] == null){
@@ -423,7 +423,7 @@ class MyHomePageState extends State<MyHomePage> {
                                 children: <Widget>[
                                   ListTile(
                                     title: Text(
-                                      "Add daily notification\nCurrently scheduled at $timeString",
+                                      "Add daily notification\n$timeString",
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     leading: Icon(
@@ -505,16 +505,29 @@ class MyHomePageState extends State<MyHomePage> {
         );
       },
     );
-    pickedTimeSP[0] = pickedTime.hour;
-    pickedTimeSP[1] = pickedTime.minute;
-    await this._notifications.flutterLocalNotificationsPlugin.cancelAll();
-    this._notifications.scheduleDailyNotification(pickedTime);
-    saveNotifTime();
-    timeToString();
+    String toastmessage = "";
+    if(pickedTime == null){
+      pickedTimeSP[0] = 99;
+      pickedTimeSP[1] = 99;
+      await this._notifications.flutterLocalNotificationsPlugin.cancelAll();
+      toastmessage = "Notifications cancelled";
+      saveNotifTime();
+      timeToString();
+    }
+    else{
+      pickedTimeSP[0] = pickedTime.hour;
+      pickedTimeSP[1] = pickedTime.minute;
+      await this._notifications.flutterLocalNotificationsPlugin.cancelAll();
+      this._notifications.scheduleDailyNotification(pickedTime);
+      saveNotifTime();
+      timeToString();
+      toastmessage = timeString;
+
+    }
 
     Navigator.pop(context);
     Fluttertoast.showToast(
-        msg: "Notification set for $timeString",
+        msg: toastmessage,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 3,
@@ -526,19 +539,23 @@ class MyHomePageState extends State<MyHomePage> {
 
   void timeToString(){
     timeString = "";
-    if(pickedTimeSP[0] < 9){
-      timeString = "0" + pickedTimeSP[0].toString() + ":";
+    if(pickedTimeSP[0] == 99 && pickedTimeSP[1] == 99){
+      timeString = "No notification set";
     }
-    else{
-      timeString = pickedTimeSP[0].toString() + ":";
-    }
+    else {
+      if (pickedTimeSP[0] < 9) {
+        timeString = "Currently scheduled at 0" + pickedTimeSP[0].toString() + ":";
+      }
+      else {
+        timeString = "Currently scheduled at " + pickedTimeSP[0].toString() + ":";
+      }
 
-    if(pickedTimeSP[1] < 9){
-      timeString += "0" + pickedTimeSP[1].toString();
-    }
-    else{
-      timeString += pickedTimeSP[1].toString();
+      if (pickedTimeSP[1] < 9) {
+        timeString += "0" + pickedTimeSP[1].toString();
+      }
+      else {
+        timeString += pickedTimeSP[1].toString();
+      }
     }
   }
-
 }
