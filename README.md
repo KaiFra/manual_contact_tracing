@@ -56,3 +56,9 @@ Application to manually track social contacts on a daily basis
     -Unified button design
 ### 2.0.1
     -Added option to delete daily notification
+### 2.1.0
+    -Every date is shown now
+    -Got rid of date picker
+    -Switched to Google Product Sans
+    -Visual changes
+    -Under-the-hood changes

@@ -5,19 +5,17 @@ import 'package:manual_contact_tracing/entry.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:manual_contact_tracing/theme.dart';
-import 'package:flutter_rounded_date_picker/rounded_picker.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:fluttertoast/fluttertoast.dart';
-
 import 'notification.dart';
 
 
 void main() {
-  runApp(MyApp());
+  runApp(MCT());
 }
 
-class MyApp extends StatelessWidget {
+class MCT extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -27,7 +25,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Manual contact tracing',
       theme: CustomTheme.darkTheme,
-      home: MyHomePage(title: 'Manual contact tracing'),
+      home: MyHomePage(title: 'Contact diary'),
     );
   }
 }
@@ -43,6 +41,7 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage> {
 
+  double borderRadius = 12.0;
   SharedPreferences sharedPreferences;
 
   List<Entry> entries = new List<Entry>(); //List for all contacts
@@ -53,7 +52,8 @@ class MyHomePageState extends State<MyHomePage> {
 
   List<int> pickedTimeSP = [0, 0]; //Workaround to save notification time in sharedPrefs
   String timeString = "";
-
+  
+  DateTime timeAgo = DateTime.now().subtract(Duration(days: 17));
 
   @override
   void initState() {
@@ -68,26 +68,6 @@ class MyHomePageState extends State<MyHomePage> {
   initSharedPreferences() async{
     sharedPreferences = await SharedPreferences.getInstance();
     loadData();
-
-    /*
-    //For testing purposes
-    setState(() {
-      entries.add(new Entry("Heino", "30.12.2020"));
-    });
-
-    setState(() {
-      entries.add(new Entry("Muddi", "24.12.2020"));
-    });
-
-    setState(() {
-      entries.add(new Entry("Huhu", "18.11.2020"));
-    });
-
-    setState(() {
-      entries.add(new Entry("Heinz", "18.07.2020"));
-    });
-
-    */
   }
 
   final textfield = TextEditingController();
@@ -99,9 +79,9 @@ class MyHomePageState extends State<MyHomePage> {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text(widget.title),
+        centerTitle: true,
       ),
       bottomNavigationBar: BottomAppBar(
-
         color: Colors.black,
         child: new Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -118,21 +98,27 @@ class MyHomePageState extends State<MyHomePage> {
                   child: ListView.builder(
                       // Let the ListView know how many items it needs to build.
                       itemCount: entries.length,
-                      // Provide a builder function. This is where the magic happens.
-                      // Convert each item into a widget based on the type of item it is.
-                      //scrollDirection: Axis.vertical,
+                      padding: const EdgeInsets.all(10),
                       shrinkWrap: true,
-                      itemBuilder: (context, index) {
+                      itemBuilder: (context, i) {
                         return Center(
                             child: Card(
                             child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
-                            ListTile(
-                              //leading: Icon(Icons.album),
-                              title: Text(entries[index].time, style: TextStyle(color: Colors.white, fontSize: 22)),
-                              subtitle: Text(entries[index].enteredContacts, style: TextStyle(color: Colors.white, fontSize: 16)),
-                              onTap: () => showInputDialog(index, entries[index].time),
+                            Ink(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[900],
+                              borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
+                            ),
+                              child: ListTile(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(borderRadius))),
+                                title: Text(entries[i].time, style: TextStyle(color: Colors.white, fontSize: 22)),
+                                subtitle: (entries[i].enteredContacts != '')
+                                ? Text(entries[i].enteredContacts, style: TextStyle(color: Colors.white, fontSize: 16))
+                                : null,
+                                onTap: () => showTextInputDialog(context,i, entries[i].time),
+                              ),
                             ),
                             ],
                             ),
@@ -145,7 +131,7 @@ class MyHomePageState extends State<MyHomePage> {
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showInputDialog(0, DateFormat('dd.MM.yyy').format(new DateTime.now())),
+        onPressed: () => showTextInputDialog(context, 0, DateFormat('dd.MM.yyy').format(new DateTime.now())),
         tooltip: 'Add new contacts',
         child: Icon(Icons.add),
       ),
@@ -153,13 +139,10 @@ class MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  //Workaround to show text input field to add contact
-  void showInputDialog(int index,String time){
-    displayTextInputDialog(context,index, time);
-  }
+
 
   //Display alert dialog to enter contacts
-  Future<void> displayTextInputDialog(BuildContext context, int index, String time) async {
+  Future<void> showTextInputDialog(BuildContext context, int index, String time) async {
     return showDialog(
         context: context,
         builder: (context) {
@@ -175,22 +158,22 @@ class MyHomePageState extends State<MyHomePage> {
               maxLines: 3,
               controller: textfield..text = getInitialTextFieldValue(index, time),
             ),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(borderRadius))
+            ),
             actions: <Widget>[
                 FlatButton(
                 //color: Colors.red,
                 textColor: Colors.white,
-                child: Text('CANCEL'),
-                onPressed: () {
-                  setState(() {
-                    Navigator.pop(context);
-                  });
-                },
+                child: Text('CANCELy'),
+                onPressed: () {setState(() {Navigator.pop(context);});},
               ),
                 FlatButton(
-                //color: CustomColors.myGreen,
                 textColor: Colors.white,
                 child: Text('OK'),
-                onPressed: () => createEntry(time),
+                onPressed: () {
+                  createEntry(textfield.text.trim(), time, false);
+                  setState(() {Navigator.pop(context);});},
               ),
             ],
           );
@@ -211,49 +194,56 @@ class MyHomePageState extends State<MyHomePage> {
       }
   }
 
-  createEntry(String time) {
+  createEntry(String text, String time, bool emptyEntry) {
       bool added = false;
-      for (int i = 0; i < entries.length; i++) {
-        if (entries[i].time == time) {
-          setState(() {
-            entries[i].enteredContacts = textfield.text.trim();
-          });
+      for (int i = 0; i < entries.length; i++){
+          //if(entries[i].time == time && !emptyEntry) {
+          if(entries[i].time == time) {
+            if(!emptyEntry) {
+              setState(() {
+                entries[i].enteredContacts = text;
+              });
+            }
           added = true;
           break;
         }
+          /*
+        if(entries[i].time == time && emptyEntry){
+          added = true;
+          break;
+        }
+
+           */
       }
-      if (!added && textfield.text != '') {
+
+      if (!added) {
         setState(() {
-          entries.add(new Entry(textfield.text.trim(), time));
+          entries.add(new Entry(text, time));
         });
       }
-      textfield.clear();
+      if(!emptyEntry) {
+        textfield.clear();
+      }
       saveData();
-      setState(() {
-        Navigator.pop(context);
-      });
   }
 
   void copy(){
     String clipboard = "";
     for(var i = 0; i < entries.length; i++){
-      clipboard += entries[i].time + "\n" + entries[i].enteredContacts + "\n";
+      if(entries[i].enteredContacts != ''){
+        clipboard += entries[i].time + "\n" + entries[i].enteredContacts + "\n";
+      }
     }
     //print(clipboard);
     Clipboard.setData(new ClipboardData(text: clipboard));
-    Fluttertoast.showToast(
-        msg: "Copied to clipboard",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 3,
-        backgroundColor: CustomColors.myLightGrey,
-        textColor: Colors.white,
-        fontSize: 16.0
-    );
+    for (int i = 0; i < 17; i++) {
+      createEntry('', DateFormat('dd.MM.yyy').format(new DateTime.now().subtract(Duration(days: i))), true);
+    }
+    toast("Copied to clipboard");
   }
 
   void saveData(){
-    removeJunk();
+    removeOld();
     sortList();
     List<String> spList = entries.map((item) => json.encode(item.toMap())).toList();
     sharedPreferences.setStringList('list', spList);
@@ -270,7 +260,13 @@ class MyHomePageState extends State<MyHomePage> {
       entries = spList.map((item) => Entry.fromMap(json.decode(item))).toList();
       setState(() {});
     }
-    removeJunk();
+    //Create empty entries for every day
+    //DateTime now = new DateTime.now();
+    for (int i = 0; i < 17; i++) {
+      createEntry('', DateFormat('dd.MM.yyy').format(new DateTime.now().subtract(Duration(days: i))), true);
+    }
+
+    removeOld();
     sortList();
 
     pickedTimeSP[0] = sharedPreferences.getInt('pickedHour');
@@ -289,18 +285,16 @@ class MyHomePageState extends State<MyHomePage> {
     timeToString();
   }
 
-  //Removes old and empty dates
-  void removeJunk(){
-    DateTime timeAgo = DateTime.now().subtract(Duration(days: 17));
-    //Find indeces with old date or empty
+  //Removes old dates
+  void removeOld(){
+    //Find indeces with old date
     List<int> indeces = [];
     for (int i = 0; i < entries.length; i++) {
       DateTime entryTime = formatter.parse(entries[i].time);
-      if (entryTime.isBefore(timeAgo) || entries[i].enteredContacts == "" || entries[i].enteredContacts == "\n") {
+      if (entryTime.isBefore(timeAgo)) {
         indeces.add(i);
       }
-      String trim = entries[i].enteredContacts.trim();
-      entries[i].enteredContacts = trim;
+      entries[i].enteredContacts.trim();
     }
     //Remove corresponding indices
     int removedCount = 0;
@@ -317,8 +311,11 @@ class MyHomePageState extends State<MyHomePage> {
     showDialog(context: context, child:
     new AlertDialog(
       elevation: 24,
-      title: new Text("Delete data?"),
+      title: Text("Delete data?"),
       content: new Text("Proceeding with this action will delete your data."),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(borderRadius))
+      ),
       actions: [
         FlatButton(
           textColor: Colors.white,
@@ -351,46 +348,6 @@ class MyHomePageState extends State<MyHomePage> {
     setState(() {entries.sort((a,b) => formatter.parse(b.time).compareTo(formatter.parse(a.time)));});
   }
 
-  void searchDate() async{
-    DateTime now = DateTime.now();
-    final DateTime pickedDate = await showRoundedDatePicker(
-      context: context,
-      initialDate: now,
-      firstDate: now.subtract(Duration(days: 17)),
-      lastDate: now,
-      initialDatePickerMode: DatePickerMode.day,
-      borderRadius: 16,
-      theme: ThemeData(
-        primaryColor: CustomColors.myGreen,
-        accentColor: CustomColors.myGreen,
-        dialogBackgroundColor: CustomColors.myLightGrey,
-        textTheme: TextTheme(
-          bodyText2: TextStyle(color: Colors.white),
-          caption: TextStyle(color: Colors.black),
-        ),
-        buttonTheme: ButtonThemeData(
-          colorScheme: ColorScheme.dark(
-            primary: Colors.white,
-          ),
-        ),
-        disabledColor: CustomColors.myLightGrey,
-      ),
-    );
-
-    String picked = DateFormat('dd.MM.yyy').format(pickedDate);
-    bool found = false;
-    for (int i = 0; i < entries.length; i++) {
-      if (entries[i].time == picked) {
-        showInputDialog(i, picked);
-        found = true;
-        break;
-      }
-    }
-    if(!found){
-      //setState(() {entries.add(new Entry("", picked));});
-      showInputDialog(entries.length - 1, picked);
-    }
-  }
 
   showMenu() {
     showModalBottomSheet(
@@ -404,14 +361,14 @@ class MyHomePageState extends State<MyHomePage> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 SizedBox(
-                    height: (56 * 4).toDouble(),
+                    height: (56 * 3).toDouble(),
                     child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(16.0),
                             topRight: Radius.circular(16.0),
                           ),
-                          color: CustomColors.myGrey,
+                          color: Colors.grey[900],
                         ),
                         child: Stack(
                           alignment: Alignment(0, 0),
@@ -431,17 +388,6 @@ class MyHomePageState extends State<MyHomePage> {
                                       color: Colors.white,
                                     ),
                                     onTap: () => dailyNotification(),
-                                  ),
-                                  ListTile(
-                                    title: Text(
-                                      "Search and edit",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    leading: Icon(
-                                      Icons.search,
-                                      color: Colors.white,
-                                    ),
-                                    onTap: searchDate,
                                   ),
                                   ListTile(
                                     title: Text(
@@ -466,9 +412,12 @@ class MyHomePageState extends State<MyHomePage> {
                                     onTap: () {
                                       showDialog(context: context, child:
                                       new AlertDialog(
-                                        title: new Text("Manual Contact Tracing"),
-                                        content: new Text("This app helps you to manually track your contacts. You can add a daily notification.\nYou can add contacts for every day and edit them.\n"
-                                            "Copying to the clipboard is supported.\nContacts are automatically deleted after 16 days.\n\n2021 \u00a9 Franz Lukas Kaiser"),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(borderRadius))
+                                        ),
+                                        title: Text("Contact Diary", style: TextStyle(fontFamily: 'Product Sans'),),
+                                        content: Text("This app helps you to manually track your contacts. You can add a daily notification.\nYou can add contacts for every day and edit them.\n"
+                                            "Copying to the clipboard is supported.\nContacts are automatically deleted after 16 days.\n\n2021 \u00a9 Franz Lukas Kaiser", style: TextStyle(fontFamily: 'Product Sans'),),
                                       ));},
                                   ),
                                 ],
@@ -482,6 +431,7 @@ class MyHomePageState extends State<MyHomePage> {
         });
   }
 
+
   void dailyNotification() async {
     TimeOfDay pickedTime = await showTimePicker(
       initialTime: TimeOfDay.fromDateTime(DateTime.now().add(Duration(minutes: 1))),
@@ -491,11 +441,6 @@ class MyHomePageState extends State<MyHomePage> {
           data: ThemeData.light().copyWith(
             colorScheme: ColorScheme.dark(
               primary: Colors.white,
-            ),
-            buttonTheme: ButtonThemeData(
-              colorScheme: ColorScheme.dark(
-                primary: Colors.white,
-              ),
             ),
           ),
           child: MediaQuery(
@@ -522,16 +467,19 @@ class MyHomePageState extends State<MyHomePage> {
       saveNotifTime();
       timeToString();
       toastmessage = timeString;
-
     }
 
     Navigator.pop(context);
+    toast(toastmessage);
+  }
+
+  void toast(String toastmessage){
     Fluttertoast.showToast(
         msg: toastmessage,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 3,
-        backgroundColor: CustomColors.myLightGrey,
+        backgroundColor: Colors.grey[800],
         textColor: Colors.white,
         fontSize: 16.0
     );
