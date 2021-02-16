@@ -3,7 +3,7 @@ class Entry {
   String time;
 
   Entry(enteredContacts, time){
-    this.enteredContacts = enteredContacts;
+    this.enteredContacts= enteredContacts;
     this.time = time;
   }
 

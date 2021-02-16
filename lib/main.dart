@@ -7,8 +7,8 @@ import 'dart:convert';
 import 'package:manual_contact_tracing/theme.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:fluttertoast/fluttertoast.dart';
 import 'notification.dart';
+import 'functions.dart';
 
 
 void main() {
@@ -33,6 +33,8 @@ class MCT extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   final String title;
 
+
+
   MyHomePage({Key key, this.title}) : super(key: key);
 
   @override
@@ -40,6 +42,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class MyHomePageState extends State<MyHomePage> {
+  final helper = HelperFunctions();
 
   double borderRadius = 12.0;
   SharedPreferences sharedPreferences;
@@ -87,7 +90,7 @@ class MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               IconButton(icon: Icon(Icons.menu), onPressed: showMenu, color: Colors.white,),
-              IconButton(icon: Icon(Icons.copy), onPressed: copy, color: Colors.white,),
+              IconButton(icon: Icon(Icons.copy), onPressed: () => helper.copy(entries), color: Colors.white,),
         ],
       ),),
       body:
@@ -131,14 +134,13 @@ class MyHomePageState extends State<MyHomePage> {
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showTextInputDialog(context, 0, DateFormat('dd.MM.yyy').format(new DateTime.now())),
+        onPressed: () => showTextInputDialog(context, 0, formatter.format(new DateTime.now())),
         tooltip: 'Add new contacts',
         child: Icon(Icons.add),
       ),
       //floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterDocked,// This trailing comma makes auto-formatting nicer for build methods.
     );
   }
-
 
 
   //Display alert dialog to enter contacts
@@ -165,7 +167,7 @@ class MyHomePageState extends State<MyHomePage> {
                 FlatButton(
                 //color: Colors.red,
                 textColor: Colors.white,
-                child: Text('CANCELy'),
+                child: Text('CANCEL'),
                 onPressed: () {setState(() {Navigator.pop(context);});},
               ),
                 FlatButton(
@@ -197,7 +199,6 @@ class MyHomePageState extends State<MyHomePage> {
   createEntry(String text, String time, bool emptyEntry) {
       bool added = false;
       for (int i = 0; i < entries.length; i++){
-          //if(entries[i].time == time && !emptyEntry) {
           if(entries[i].time == time) {
             if(!emptyEntry) {
               setState(() {
@@ -207,13 +208,6 @@ class MyHomePageState extends State<MyHomePage> {
           added = true;
           break;
         }
-          /*
-        if(entries[i].time == time && emptyEntry){
-          added = true;
-          break;
-        }
-
-           */
       }
 
       if (!added) {
@@ -227,20 +221,6 @@ class MyHomePageState extends State<MyHomePage> {
       saveData();
   }
 
-  void copy(){
-    String clipboard = "";
-    for(var i = 0; i < entries.length; i++){
-      if(entries[i].enteredContacts != ''){
-        clipboard += entries[i].time + "\n" + entries[i].enteredContacts + "\n";
-      }
-    }
-    //print(clipboard);
-    Clipboard.setData(new ClipboardData(text: clipboard));
-    for (int i = 0; i < 17; i++) {
-      createEntry('', DateFormat('dd.MM.yyy').format(new DateTime.now().subtract(Duration(days: i))), true);
-    }
-    toast("Copied to clipboard");
-  }
 
   void saveData(){
     removeOld();
@@ -249,7 +229,7 @@ class MyHomePageState extends State<MyHomePage> {
     sharedPreferences.setStringList('list', spList);
   }
 
-  void saveNotifTime(){
+  void saveNotificationTime(){
     sharedPreferences.setInt('pickedHour', pickedTimeSP[0]);
     sharedPreferences.setInt('pickedMin', pickedTimeSP[1]);
   }
@@ -263,7 +243,7 @@ class MyHomePageState extends State<MyHomePage> {
     //Create empty entries for every day
     //DateTime now = new DateTime.now();
     for (int i = 0; i < 17; i++) {
-      createEntry('', DateFormat('dd.MM.yyy').format(new DateTime.now().subtract(Duration(days: i))), true);
+      createEntry('', formatter.format(new DateTime.now().subtract(Duration(days: i))), true);
     }
 
     removeOld();
@@ -282,7 +262,7 @@ class MyHomePageState extends State<MyHomePage> {
 
     await this._notifications.flutterLocalNotificationsPlugin.cancelAll();
     this._notifications.scheduleDailyNotification(pickedTime);
-    timeToString();
+    timeString = helper.timeToString(pickedTimeSP);
   }
 
   //Removes old dates
@@ -450,60 +430,23 @@ class MyHomePageState extends State<MyHomePage> {
         );
       },
     );
-    String toastmessage = "";
+
     if(pickedTime == null){
       pickedTimeSP[0] = 99;
       pickedTimeSP[1] = 99;
       await this._notifications.flutterLocalNotificationsPlugin.cancelAll();
-      toastmessage = "Notifications cancelled";
-      saveNotifTime();
-      timeToString();
+      saveNotificationTime();
     }
     else{
       pickedTimeSP[0] = pickedTime.hour;
       pickedTimeSP[1] = pickedTime.minute;
       await this._notifications.flutterLocalNotificationsPlugin.cancelAll();
       this._notifications.scheduleDailyNotification(pickedTime);
-      saveNotifTime();
-      timeToString();
-      toastmessage = timeString;
+      saveNotificationTime();
     }
 
+    timeString = helper.timeToString(pickedTimeSP);
     Navigator.pop(context);
-    toast(toastmessage);
-  }
-
-  void toast(String toastmessage){
-    Fluttertoast.showToast(
-        msg: toastmessage,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 3,
-        backgroundColor: Colors.grey[800],
-        textColor: Colors.white,
-        fontSize: 16.0
-    );
-  }
-
-  void timeToString(){
-    timeString = "";
-    if(pickedTimeSP[0] == 99 && pickedTimeSP[1] == 99){
-      timeString = "No notification set";
-    }
-    else {
-      if (pickedTimeSP[0] < 9) {
-        timeString = "Currently scheduled at 0" + pickedTimeSP[0].toString() + ":";
-      }
-      else {
-        timeString = "Currently scheduled at " + pickedTimeSP[0].toString() + ":";
-      }
-
-      if (pickedTimeSP[1] < 9) {
-        timeString += "0" + pickedTimeSP[1].toString();
-      }
-      else {
-        timeString += pickedTimeSP[1].toString();
-      }
-    }
+    toast(timeString);
   }
 }
