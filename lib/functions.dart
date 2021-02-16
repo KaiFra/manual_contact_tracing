@@ -2,6 +2,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'entry.dart';
+import 'package:intl/intl.dart';
+
+final formatter = DateFormat('dd.MM.yyy');
 
 void toast(String toastmessage){
   Fluttertoast.showToast(
@@ -49,5 +52,19 @@ class HelperFunctions {
       }
     }
     return timeString;
+  }
+
+  String getInitialTextFieldValue(List<Entry> entries, int i, String time){
+    if(entries.length == 0) {
+      return '';
+    }
+
+    if (entries[i].time == time) {
+      String ret = entries[i].enteredContacts + "\n";
+      return ret;
+    }
+    else {
+      return '';
+    }
   }
 }

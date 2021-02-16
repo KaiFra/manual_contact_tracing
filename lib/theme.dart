@@ -21,11 +21,17 @@ class CustomTheme {
           titleTextStyle: TextStyle(color: Colors.white, fontSize: 24, fontFamily: 'Product Sans',),
           contentTextStyle: TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'Product Sans',),
         ),
-        buttonTheme: ButtonThemeData(
-          colorScheme: ColorScheme.dark(
-            primary: Colors.white,
-        ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(primary: Colors.white),
       ),
+      textSelectionHandleColor: Colors.green,
+      cursorColor: Colors.green,
+      textTheme: TextTheme( headline6: TextStyle(color: Colors.white,),
+                            subtitle1: TextStyle(color: Colors.white,),
+                            subtitle2: TextStyle(color: Colors.white),),
+      iconTheme: IconThemeData(color: Colors.white,), //TODO Listview icon color
+      bottomSheetTheme: BottomSheetThemeData(backgroundColor: Colors.black,),
     );
   }
 }
+

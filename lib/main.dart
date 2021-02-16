@@ -33,8 +33,6 @@ class MCT extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   final String title;
 
-
-
   MyHomePage({Key key, this.title}) : super(key: key);
 
   @override
@@ -43,6 +41,7 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage> {
   final helper = HelperFunctions();
+  final Notifications _notifications = Notifications();
 
   double borderRadius = 12.0;
   SharedPreferences sharedPreferences;
@@ -51,7 +50,7 @@ class MyHomePageState extends State<MyHomePage> {
 
   final formatter = DateFormat('dd.MM.yyy');
 
-  final Notifications _notifications = Notifications();
+
 
   List<int> pickedTimeSP = [0, 0]; //Workaround to save notification time in sharedPrefs
   String timeString = "";
@@ -89,8 +88,8 @@ class MyHomePageState extends State<MyHomePage> {
         child: new Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              IconButton(icon: Icon(Icons.menu), onPressed: showMenu, color: Colors.white,),
-              IconButton(icon: Icon(Icons.copy), onPressed: () => helper.copy(entries), color: Colors.white,),
+              IconButton(icon: Icon(Icons.menu), onPressed: showMenu),
+              IconButton(icon: Icon(Icons.copy), onPressed: () => helper.copy(entries)),
         ],
       ),),
       body:
@@ -116,7 +115,7 @@ class MyHomePageState extends State<MyHomePage> {
                             ),
                               child: ListTile(
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(borderRadius))),
-                                title: Text(entries[i].time, style: TextStyle(color: Colors.white, fontSize: 22)),
+                                title: Text(entries[i].time, style: TextStyle(fontSize: 22),),
                                 subtitle: (entries[i].enteredContacts != '')
                                 ? Text(entries[i].enteredContacts, style: TextStyle(color: Colors.white, fontSize: 16))
                                 : null,
@@ -142,7 +141,6 @@ class MyHomePageState extends State<MyHomePage> {
     );
   }
 
-
   //Display alert dialog to enter contacts
   Future<void> showTextInputDialog(BuildContext context, int index, String time) async {
     return showDialog(
@@ -153,25 +151,19 @@ class MyHomePageState extends State<MyHomePage> {
             content:TextFormField(
               textCapitalization: TextCapitalization.sentences,
               style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                fillColor: Colors.white,
-              ),
               autofocus: true,
               maxLines: 3,
-              controller: textfield..text = getInitialTextFieldValue(index, time),
+              controller: textfield..text = helper.getInitialTextFieldValue(entries, index, time),
             ),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(borderRadius))
             ),
             actions: <Widget>[
-                FlatButton(
-                //color: Colors.red,
-                textColor: Colors.white,
+                TextButton(
                 child: Text('CANCEL'),
                 onPressed: () {setState(() {Navigator.pop(context);});},
               ),
-                FlatButton(
-                textColor: Colors.white,
+                TextButton(
                 child: Text('OK'),
                 onPressed: () {
                   createEntry(textfield.text.trim(), time, false);
@@ -182,6 +174,7 @@ class MyHomePageState extends State<MyHomePage> {
         });
   }
 
+  /*
   String getInitialTextFieldValue(int i, String time){
     if(entries.length == 0) {
       return '';
@@ -195,7 +188,7 @@ class MyHomePageState extends State<MyHomePage> {
         return '';
       }
   }
-
+*/
   createEntry(String text, String time, bool emptyEntry) {
       bool added = false;
       for (int i = 0; i < entries.length; i++){
@@ -221,10 +214,8 @@ class MyHomePageState extends State<MyHomePage> {
       saveData();
   }
 
-
   void saveData(){
     removeOld();
-    sortList();
     List<String> spList = entries.map((item) => json.encode(item.toMap())).toList();
     sharedPreferences.setStringList('list', spList);
   }
@@ -247,7 +238,6 @@ class MyHomePageState extends State<MyHomePage> {
     }
 
     removeOld();
-    sortList();
 
     pickedTimeSP[0] = sharedPreferences.getInt('pickedHour');
     if (pickedTimeSP[0] == null){
@@ -284,7 +274,10 @@ class MyHomePageState extends State<MyHomePage> {
       });
       removedCount++;
     }
+    //Sort list
+    setState(() {entries.sort((a,b) => formatter.parse(b.time).compareTo(formatter.parse(a.time)));});
   }
+
 
   //Dialog for deleting data
   void deleteDataDialog(){
@@ -297,13 +290,11 @@ class MyHomePageState extends State<MyHomePage> {
           borderRadius: BorderRadius.all(Radius.circular(borderRadius))
       ),
       actions: [
-        FlatButton(
-          textColor: Colors.white,
+        TextButton(
           child: Text('CANCEL'),
             onPressed: () => Navigator.pop(context),
         ),
-        FlatButton(
-          textColor: Colors.white,
+        TextButton(
           child: Text('OK'),
           onPressed: deleteData,
         ),
@@ -324,14 +315,8 @@ class MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  void sortList(){
-    setState(() {entries.sort((a,b) => formatter.parse(b.time).compareTo(formatter.parse(a.time)));});
-  }
-
-
   showMenu() {
     showModalBottomSheet(
-        backgroundColor: Colors.black,
         useRootNavigator: true,
         context: context,
         builder: (BuildContext context) {
@@ -360,9 +345,7 @@ class MyHomePageState extends State<MyHomePage> {
                                 children: <Widget>[
                                   ListTile(
                                     title: Text(
-                                      "Add daily notification\n$timeString",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
+                                      "Add daily notification\n$timeString"),
                                     leading: Icon(
                                       Icons.notifications,
                                       color: Colors.white,
@@ -370,10 +353,7 @@ class MyHomePageState extends State<MyHomePage> {
                                     onTap: () => dailyNotification(),
                                   ),
                                   ListTile(
-                                    title: Text(
-                                      "Delete data",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
+                                    title: Text("Delete data"),
                                     leading: Icon(
                                       Icons.delete,
                                       color: Colors.white,
@@ -382,9 +362,7 @@ class MyHomePageState extends State<MyHomePage> {
                                   ),
                                   ListTile(
                                     title: Text(
-                                      "Info",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
+                                      "Info"),
                                     leading: Icon(
                                       Icons.info,
                                       color: Colors.white,
@@ -416,6 +394,7 @@ class MyHomePageState extends State<MyHomePage> {
     TimeOfDay pickedTime = await showTimePicker(
       initialTime: TimeOfDay.fromDateTime(DateTime.now().add(Duration(minutes: 1))),
       context: context,
+
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
@@ -449,4 +428,5 @@ class MyHomePageState extends State<MyHomePage> {
     Navigator.pop(context);
     toast(timeString);
   }
+
 }
