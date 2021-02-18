@@ -62,3 +62,5 @@ Application to manually track social contacts on a daily basis
     -Switched to Google Product Sans
     -Visual changes
     -Under-the-hood changes
+### 2.1.1
+    -Deletes old shared preferences

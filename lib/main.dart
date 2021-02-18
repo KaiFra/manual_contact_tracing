@@ -214,13 +214,16 @@ class MyHomePageState extends State<MyHomePage> {
       saveData();
   }
 
-  void saveData(){
+  void saveData() async {
+    await sharedPreferences.remove('list');
     removeOld();
     List<String> spList = entries.map((item) => json.encode(item.toMap())).toList();
     sharedPreferences.setStringList('list', spList);
   }
 
-  void saveNotificationTime(){
+  void saveNotificationTime() async {
+    await sharedPreferences.remove('pickedHour');
+    await sharedPreferences.remove('pickedMin');
     sharedPreferences.setInt('pickedHour', pickedTimeSP[0]);
     sharedPreferences.setInt('pickedMin', pickedTimeSP[1]);
   }
@@ -302,9 +305,11 @@ class MyHomePageState extends State<MyHomePage> {
     ));
   }
 
-  void deleteData(){
+  void deleteData() async{
     setState(() {entries.clear();});
     saveData();
+    await sharedPreferences.remove('pickedHour');
+    await sharedPreferences.remove('pickedMin');
     Navigator.pop(context);
   }
 
