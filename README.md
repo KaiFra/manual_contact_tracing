@@ -3,7 +3,7 @@
 Application to manually track social contacts on a daily basis
 
 ## Changelog
-### 1.0.0
+## 1.0.0
 	-Initial release	
 ### 1.1.0
     -Now removing entries older than 16 days    
@@ -34,7 +34,7 @@ Application to manually track social contacts on a daily basis
     -Removed textinput label    
     -Deleting data now works properly  
     -Changed design of delete data dialog  
-## 1.6.0
+### 1.6.0
     -Added option to add contacts for older dates   
 ### 1.6.1   
     -Removed option to add older days (for now)    
@@ -50,7 +50,7 @@ Application to manually track social contacts on a daily basis
     -Fixed issue with adding older days without contact
 ### 1.7.0
     -Added onTap for listview, makes dates clickable
-### 2.0.0
+## 2.0.0
     -Added daily notification
     -Added toast messages
     -Unified button design
