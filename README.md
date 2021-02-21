@@ -1,4 +1,4 @@
-# manual_contact_tracing
+# Contact Diary
 
 Application to manually track social contacts on a daily basis
 
