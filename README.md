@@ -64,3 +64,9 @@ Application to manually track social contacts on a daily basis
     -Under-the-hood changes
 ### 2.1.1
     -Deletes old shared preferences
+### 2.1.2
+    -Trying out fix for too many notifications showing
+    -Changed name to Contact Diary
+    -Made app icon round
+    -Added some tooltips
+    -Updated textformfield

@@ -23,9 +23,9 @@ class MCT extends StatelessWidget {
     ]);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Manual contact tracing',
+      title: 'Contact Diary',
       theme: CustomTheme.darkTheme,
-      home: MyHomePage(title: 'Contact diary'),
+      home: MyHomePage(title: 'Contact Diary'),
     );
   }
 }
@@ -88,8 +88,8 @@ class MyHomePageState extends State<MyHomePage> {
         child: new Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              IconButton(icon: Icon(Icons.menu), onPressed: showMenu),
-              IconButton(icon: Icon(Icons.copy), onPressed: () => helper.copy(entries)),
+              IconButton(icon: Icon(Icons.menu), onPressed: showMenu, tooltip: "Show menu",),
+              IconButton(icon: Icon(Icons.copy), onPressed: () => helper.copy(entries), tooltip: "Copy to clipboard",),
         ],
       ),),
       body:
@@ -137,7 +137,6 @@ class MyHomePageState extends State<MyHomePage> {
         tooltip: 'Add new contacts',
         child: Icon(Icons.add),
       ),
-      //floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterDocked,// This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
@@ -148,11 +147,12 @@ class MyHomePageState extends State<MyHomePage> {
         builder: (context) {
           return AlertDialog(
             title: Text('Enter your contacts'),
-            content:TextFormField(
+            content: TextFormField(
               textCapitalization: TextCapitalization.sentences,
               style: TextStyle(color: Colors.white),
               autofocus: true,
-              maxLines: 3,
+              minLines: 1,
+              maxLines: 100,
               controller: textfield..text = helper.getInitialTextFieldValue(entries, index, time),
             ),
             shape: RoundedRectangleBorder(
@@ -160,14 +160,14 @@ class MyHomePageState extends State<MyHomePage> {
             ),
             actions: <Widget>[
                 TextButton(
-                child: Text('CANCEL'),
-                onPressed: () {setState(() {Navigator.pop(context);});},
+                  child: Text('CANCEL'),
+                  onPressed: () {setState(() {Navigator.pop(context);});},
               ),
                 TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  createEntry(textfield.text.trim(), time, false);
-                  setState(() {Navigator.pop(context);});},
+                  child: Text('OK'),
+                  onPressed: () {
+                    createEntry(textfield.text.trim(), time, false);
+                    setState(() {Navigator.pop(context);});},
               ),
             ],
           );

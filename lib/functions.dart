@@ -56,7 +56,7 @@ class HelperFunctions {
 
   String getInitialTextFieldValue(List<Entry> entries, int i, String time){
     if(entries.length == 0) {
-      return '';
+      return null;
     }
 
     if (entries[i].time == time) {
@@ -64,7 +64,7 @@ class HelperFunctions {
       return ret;
     }
     else {
-      return '';
+      return null;
     }
   }
 }

@@ -4,7 +4,7 @@
 
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="Manual Contact Tracing"
+        android:label="Contact Diary"
         android:icon="@mipmap/ic_launcher">
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

@@ -26,23 +26,26 @@ class Notifications {
   }
 
   Future<void> scheduleDailyNotification(TimeOfDay pickedTime) async {
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-        0,
-        'Add contacts',
-        'Did you add all your contacts for today already?',
-        nextInstance(pickedTime),
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'daily notification channel id',
-            'daily notification channel name',
-            'daily notification description',
-            importance: Importance.defaultImportance,
-            priority: Priority.defaultPriority,
-            enableVibration: false,
+    if (pickedTime == TimeOfDay.now()) {  //TODO Fixed the issue?
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+          0,
+          'Add contacts',
+          'Did you add all your contacts for today already?',
+          nextInstance(pickedTime),
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'daily notification channel id',
+              'daily notification channel name',
+              'daily notification description',
+              importance: Importance.defaultImportance,
+              priority: Priority.defaultPriority,
+              enableVibration: false,
+            ),
           ),
-        ),
-        androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime, matchDateTimeComponents: DateTimeComponents.time);
+          androidAllowWhileIdle: true,
+          uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation
+              .absoluteTime, matchDateTimeComponents: DateTimeComponents.time);
+    }
   }
 }
 
