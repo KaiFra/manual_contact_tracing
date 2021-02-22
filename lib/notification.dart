@@ -26,7 +26,6 @@ class Notifications {
   }
 
   Future<void> scheduleDailyNotification(TimeOfDay pickedTime) async {
-    if (pickedTime == TimeOfDay.now()) {  //TODO Fixed the issue?
       await flutterLocalNotificationsPlugin.zonedSchedule(
           0,
           'Add contacts',
@@ -46,6 +45,5 @@ class Notifications {
           uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation
               .absoluteTime, matchDateTimeComponents: DateTimeComponents.time);
     }
-  }
 }
 
